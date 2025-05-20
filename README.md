@@ -1,55 +1,135 @@
-Hardening Ubuntu 25.04 (or any Ubuntu system) means improving its security posture to reduce the risk of unauthorized access, data breaches, or service disruption. Ubuntu 25.04 is a recent release, so here’s a practical, up-to-date hardening checklist tailored for it:
+# 🔐 **Ubuntu 25.04 Hardening Guide**
+
+## Table of Contents
+
+1. [User and Authentication Hardening](#1-user-and-authentication-hardening)
+2. [System Preparation](#2-system-preparation)
+3. [Network Security](#3-network-security)
+4. [Service and Application Hardening](#4-service-and-application-hardening)
+5. [Kernel and System Hardening](#5-kernel-and-system-hardening)
+6. [Logging and Auditing](#6-logging-and-auditing)
+7. [File System Hardening](#7-file-system-hardening)
+8. [Updates and Patch Management](#8-updates-and-patch-management)
+9. [Security Tools](#9-security-tools)
+10. [Final Notes](#10-final-notes)
 
 ---
 
-## 🔒 Ubuntu 25.04 Hardening Guide
+## 1. User and Authentication Hardening
 
-### ✅ 1. **Keep the System Updated**
+### ❯ **Create an Admin User (Example: `sysadmin`)**
 
-Ensure security patches and updates are applied:
+Use a strong username that isn't easy to guess. Here's how to create a user called `sysadmin` and give them sudo privileges:
+
+```bash
+adduser sysadmin
+usermod -aG sudo sysadmin
+```
+
+**Explanation:**
+
+* `adduser sysadmin` — Creates the user and prompts you to set a password and basic user info.
+* `usermod -aG sudo sysadmin` — Adds `sysadmin` to the `sudo` group so they can perform admin tasks.
+
+After creating the user, switch to it:
+
+```bash
+su - sysadmin
+```
+
+Now you can proceed with the rest of the hardening process from this non-root, sudo-enabled account.
+
+---
+
+### ❯ **Disable Root SSH Login**
+
+Edit `/etc/ssh/sshd_config`:
+
+```plaintext
+PermitRootLogin no
+```
+
+Then:
+
+```bash
+sudo systemctl restart ssh
+```
+
+---
+
+### ❯ **Enforce Strong Passwords**
+
+Install the `pam-pwquality` package:
+
+```bash
+sudo apt install libpam-pwquality
+```
+
+Edit `/etc/pam.d/common-password`:
+
+```plaintext
+password requisite pam_pwquality.so retry=3 minlen=14 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1
+```
+
+---
+
+### ❯ **Enable Two-Factor Authentication (Optional)**
+
+Install the required package for Google Authenticator:
+
+```bash
+sudo apt install libpam-google-authenticator
+google-authenticator
+```
+
+Update `/etc/pam.d/sshd`:
+
+```plaintext
+auth required pam_google_authenticator.so
+```
+
+Update `/etc/ssh/sshd_config`:
+
+```plaintext
+ChallengeResponseAuthentication yes
+```
+
+Then:
+
+```bash
+sudo systemctl restart ssh
+```
+
+---
+
+## 2. System Preparation
+
+### ❯ **Update the System**
+
+Keep the system up-to-date:
 
 ```bash
 sudo apt update && sudo apt upgrade -y
 sudo apt install unattended-upgrades
-sudo dpkg-reconfigure --priority=low unattended-upgrades
 ```
 
 ---
 
-### ✅ 2. **Minimal Install / Remove Unused Software**
+### ❯ **Configure Time Synchronization**
 
-Reduce the attack surface:
-
-```bash
-sudo apt autoremove --purge
-```
-
-Also review services:
+Ensure the system time is synchronized:
 
 ```bash
-systemctl list-units --type=service --state=running
-```
-
-Disable any unnecessary ones:
-
-```bash
-sudo systemctl disable service-name
+sudo timedatectl set-ntp true
 ```
 
 ---
 
-### ✅ 3. **Create a Non-root User**
+## 3. Network Security
 
-Avoid using `root` directly:
+### ❯ **Enable and Configure UFW (Uncomplicated Firewall)**
 
-```bash
-sudo adduser yourusername
-sudo usermod -aG sudo yourusername
-```
-
----
-
-### ✅ 4. **Enable and Configure UFW (Uncomplicated Firewall)**
+Start by configuring the firewall:
 
 ```bash
 sudo ufw default deny incoming
@@ -58,147 +138,232 @@ sudo ufw allow ssh
 sudo ufw enable
 ```
 
-Check status:
+### ❯ **Disable Unused Network Services**
+
+List open ports:
 
 ```bash
-sudo ufw status
+ss -tulnp
+```
+
+Stop and disable unnecessary services:
+
+```bash
+sudo systemctl stop avahi-daemon
+sudo systemctl disable avahi-daemon
 ```
 
 ---
 
-### ✅ 5. **Secure SSH Access**
+## 4. Service and Application Hardening
 
-Edit SSH config:
+### ❯ **Secure SSH**
 
-```bash
-sudo nano /etc/ssh/sshd_config
-```
+Edit `/etc/ssh/sshd_config` to secure SSH access:
 
-Change or add:
-
-```
+```plaintext
+Port 2222
+Protocol 2
+PermitEmptyPasswords no
+PasswordAuthentication no  # if using SSH keys
 PermitRootLogin no
-PasswordAuthentication no
-AllowUsers yourusername
 ```
 
-Then restart:
+Then restart SSH:
 
 ```bash
-sudo systemctl restart sshd
+sudo systemctl restart ssh
 ```
-
-Optional:
-
-* Use **key-based authentication** instead of passwords
-* Change default port (e.g., `Port 2222`)
 
 ---
 
-### ✅ 6. **Install Fail2Ban**
+### ❯ **Install Fail2Ban**
 
-Protect against brute-force login attempts:
+Fail2Ban helps protect against brute-force attacks. Install it:
 
 ```bash
 sudo apt install fail2ban
-sudo systemctl enable fail2ban --now
 ```
 
-Create a local jail configuration:
+Configure Fail2Ban by editing `/etc/fail2ban/jail.local`:
+
+```ini
+[sshd]
+enabled = true
+port = 2222
+logpath = %(sshd_log)s
+maxretry = 4
+```
+
+Restart Fail2Ban:
 
 ```bash
-sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+sudo systemctl restart fail2ban
 ```
 
 ---
 
-### ✅ 7. **Enable AppArmor (Ubuntu's Mandatory Access Control)**
+## 5. Kernel and System Hardening
 
-AppArmor is enabled by default, verify:
+### ❯ **Enable AppArmor**
+
+AppArmor enhances security by restricting application capabilities:
 
 ```bash
-sudo apparmor_status
+sudo apt install apparmor apparmor-profiles apparmor-utils
+sudo aa-enforce /etc/apparmor.d/*
 ```
-
-Make sure key profiles are loaded (`/etc/apparmor.d/`).
 
 ---
 
-### ✅ 8. **Install and Use Lynis for Security Auditing**
+### ❯ **Disable Core Dumps**
+
+Prevent core dumps to protect sensitive data:
+
+Edit `/etc/security/limits.conf`:
+
+```plaintext
+* hard core 0
+```
+
+---
+
+### ❯ **Harden sysctl Configuration**
+
+Edit `/etc/sysctl.d/99-sysctl.conf`:
+
+```plaintext
+# IPv4
+net.ipv4.ip_forward = 0
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv4.conf.default.accept_redirects = 0
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.conf.default.send_redirects = 0
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.default.rp_filter = 1
+net.ipv4.tcp_syncookies = 1
+
+# IPv6
+net.ipv6.conf.all.accept_redirects = 0
+net.ipv6.conf.default.accept_redirects = 0
+```
+
+Apply changes:
 
 ```bash
-sudo apt install lynis
+sudo sysctl -p
+```
+
+---
+
+## 6. Logging and Auditing
+
+### ❯ **Use Systemd Journal**
+
+View logs with `journalctl`:
+
+```bash
+journalctl -xe
+```
+
+### ❯ **Install and Configure Auditd**
+
+Install the auditing tools:
+
+```bash
+sudo apt install auditd audispd-plugins
+sudo systemctl enable auditd
+```
+
+Example rule in `/etc/audit/rules.d/audit.rules`:
+
+```plaintext
+-w /etc/passwd -p wa -k passwd_changes
+-w /etc/shadow -p wa -k shadow_changes
+```
+
+---
+
+## 7. File System Hardening
+
+### ❯ **Configure Secure Mount Options**
+
+Edit `/etc/fstab` to harden file system security:
+
+```plaintext
+tmpfs /tmp tmpfs defaults,noexec,nosuid,nodev 0 0
+```
+
+### ❯ **Restrict Permissions**
+
+Limit file access by changing permissions:
+
+```bash
+sudo chmod 700 /root
+sudo chmod -R o-rwx /home/*
+```
+
+---
+
+## 8. Updates and Patch Management
+
+### ❯ **Configure Unattended Upgrades**
+
+Enable automatic security updates:
+
+Edit `/etc/apt/apt.conf.d/50unattended-upgrades`:
+
+```plaintext
+Unattended-Upgrade::Allowed-Origins {
+    "Ubuntu stable";
+    "Ubuntu 25.04-security";
+};
+Unattended-Upgrade::Automatic-Reboot "true";
+```
+
+---
+
+## 9. Security Tools
+
+Install security tools to enhance monitoring and protection:
+
+```bash
+sudo apt install chkrootkit rkhunter clamav lynis nmap
+```
+
+| Tool       | Purpose           |
+| ---------- | ----------------- |
+| chkrootkit | Rootkit scanner   |
+| rkhunter   | Rootkit scanner   |
+| clamav     | Antivirus         |
+| lynis      | Security auditing |
+| nmap       | Network scanning  |
+
+---
+
+## 10. Final Notes
+
+* **Regularly Review Logs:** Use `journalctl` or check `/var/log/` for any unusual activity.
+* **Disable USB (Optional):** If not needed, disable USB storage:
+
+```bash
+echo "blacklist usb-storage" | sudo tee /etc/modprobe.d/disable-usb.conf
+```
+
+* **Audit Periodically:** Run system audits using tools like `lynis`:
+
+```bash
 sudo lynis audit system
 ```
 
-Lynis gives you recommendations for further hardening.
+---
+
+### Additional Notes:
+
+* Always remember to test changes in a safe environment before applying them to a production system.
+* Regularly check for updates to both Ubuntu and any security tools installed.
 
 ---
 
-### ✅ 9. **Secure Shared Memory**
+Let me know if you need any of the sections expanded, additional configurations, or if you'd like to automate this process with a script. I can also provide a downloadable version of this guide!
 
-Edit `/etc/fstab`:
-
-```bash
-sudo nano /etc/fstab
-```
-
-Add:
-
-```
-tmpfs /run/shm tmpfs defaults,noexec,nosuid 0 0
-```
-
----
-
-### ✅ 10. **Enable Automatic Security Updates**
-
-Make sure `/etc/apt/apt.conf.d/50unattended-upgrades` exists and is configured:
-
-```bash
-sudo dpkg-reconfigure unattended-upgrades
-```
-
----
-
-### ✅ 11. **Use a Strong Password Policy**
-
-Install `libpam-pwquality`:
-
-```bash
-sudo apt install libpam-pwquality
-```
-
-Then configure `/etc/security/pwquality.conf`:
-
-```
-minlen = 12
-dcredit = -1
-ucredit = -1
-ocredit = -1
-lcredit = -1
-```
-
----
-
-### ✅ 12. **Audit Logging**
-
-Install auditd:
-
-```bash
-sudo apt install auditd
-sudo systemctl enable auditd --now
-```
-
----
-
-## 🚨 Bonus: Advanced Options
-
-* Set up **disk encryption** (LUKS)
-* Enable **2FA** with `google-authenticator` or `pam_oath`
-* Use **SELinux** (complex, optional as AppArmor is standard in Ubuntu)
-* Consider **intrusion detection systems** (like OSSEC or AIDE)
-
----
-
-Would you like a shell script that applies many of these automatically, or are you managing multiple systems (so we could talk Ansible/hardening automation)?
