@@ -10,7 +10,6 @@ This guide helps you set up **Pi-hole** (network-wide ad blocker) using **Docker
 
 ## ✅ Table of Contents
 
-1. [Set a Static IP for the Host (Required)](#1-set-a-static-ip-for-the-host-required)
 2. [Install Docker and Docker Compose](#2-install-docker-and-docker-compose)
 3. [Create Pi-hole Docker Setup Directory](#3-create-pi-hole-docker-setup-directory)
 4. [Create `docker-compose.yml` for Pi-hole](#4-create-docker-composeyml-for-pi-hole)
@@ -19,52 +18,6 @@ This guide helps you set up **Pi-hole** (network-wide ad blocker) using **Docker
 7. [Access the Pi-hole Web Interface](#7-access-the-pi-hole-web-interface)
 8. [Set Pi-hole as Your Network DNS](#8-set-pi-hole-as-your-network-dns)
 9. [Common Docker Commands](#9-common-docker-commands)
-
----
-
-## 1. 📌 Set a Static IP for the Host (Required)
-
-Pi-hole must run on a **static IP** to ensure other devices can always reach it for DNS.
-
-### Option A: Set static IP via **Netplan** (default on Ubuntu 25.04)
-
-1. Identify your network interface:
-
-```bash
-ip link
-```
-
-Assume your interface is `enp3s0`. Edit the config:
-
-```bash
-sudo nano /etc/netplan/01-netcfg.yaml
-```
-
-Example static IP config:
-
-```yaml
-network:
-  version: 2
-  renderer: NetworkManager
-  ethernets:
-    enp3s0:
-      dhcp4: no
-      addresses:
-        - 192.168.1.10/24
-      gateway4: 192.168.1.1
-      nameservers:
-        addresses:
-          - 1.1.1.1
-          - 1.0.0.1
-```
-
-Apply:
-
-```bash
-sudo netplan apply
-```
-
-> 💡 Replace `192.168.1.10` with your desired static IP, and `192.168.1.1` with your router’s gateway IP.
 
 ---
 
