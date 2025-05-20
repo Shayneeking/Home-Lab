@@ -129,7 +129,7 @@ Pi-hole must run on a **static IP** to ensure other devices can always reach it 
 
 ### ❯ **Set static IP via Netplan**
 
-1. Identify your network interface:
+Identify your network interface:
 
 ```bash
 ip link
