@@ -51,6 +51,56 @@ sudo systemctl restart ssh
 
 ## 2. System Preparation
 
+### ❯ 🖥️ Change the Hostname
+
+Changing the hostname makes your Pi-hole server easier to identify on the network.
+
+### To change it:
+
+1. Edit the hostname file:
+
+```bash
+sudo nano /etc/hostname
+```
+
+Replace the existing name (e.g., `ubuntu`) with your preferred name, such as:
+
+```
+pihole-server
+```
+
+2. Update `/etc/hosts` to match:
+
+```bash
+sudo nano /etc/hosts
+```
+
+Change the line that looks like this:
+
+```
+127.0.1.1    ubuntu
+```
+
+To:
+
+```
+127.0.1.1    pihole-server
+```
+
+3. Apply the new hostname:
+
+```bash
+sudo hostnamectl set-hostname pihole-server
+```
+
+4. Reboot for changes to fully take effect:
+
+```bash
+sudo reboot
+```
+
+---
+
 ### ❯ **Update the System**
 
 Keep the system up-to-date:
