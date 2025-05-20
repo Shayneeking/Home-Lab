@@ -4,14 +4,13 @@
 
 1. [User and Authentication Hardening](#1-user-and-authentication-hardening)
 2. [System Preparation](#2-system-preparation)
-3. [Network Security](#3-network-security)
-4. [Service and Application Hardening](#4-service-and-application-hardening)
-5. [Kernel and System Hardening](#5-kernel-and-system-hardening)
-6. [Logging and Auditing](#6-logging-and-auditing)
-7. [File System Hardening](#7-file-system-hardening)
-8. [Updates and Patch Management](#8-updates-and-patch-management)
-9. [Security Tools](#9-security-tools)
-10. [Final Notes](#10-final-notes)
+3. [Service and Application Hardening](#4-service-and-application-hardening)
+4. [Kernel and System Hardening](#5-kernel-and-system-hardening)
+5. [Logging and Auditing](#6-logging-and-auditing)
+6. [File System Hardening](#7-file-system-hardening)
+7. [Updates and Patch Management](#8-updates-and-patch-management)
+8. [Security Tools](#9-security-tools)
+9. [Final Notes](#10-final-notes)
 
 ---
 
@@ -80,37 +79,7 @@ sudo timedatectl set-ntp true
 
 ---
 
-## 3. Network Security
-
-### ❯ **Enable and Configure UFW (Uncomplicated Firewall)**
-
-Start by configuring the firewall:
-
-```bash
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw allow ssh
-sudo ufw enable
-```
-
-### ❯ **Disable Unused Network Services**
-
-List open ports:
-
-```bash
-ss -tulnp
-```
-
-Stop and disable unnecessary services:
-
-```bash
-sudo systemctl stop avahi-daemon
-sudo systemctl disable avahi-daemon
-```
-
----
-
-## 4. Service and Application Hardening
+## 3. Service and Application Hardening
 
 ### ❯ **Secure SSH**
 
@@ -158,7 +127,7 @@ sudo systemctl restart fail2ban
 
 ---
 
-## 5. Kernel and System Hardening
+## 4. Kernel and System Hardening
 
 ### ❯ **Enable AppArmor**
 
@@ -211,7 +180,7 @@ sudo sysctl -p
 
 ---
 
-## 6. Logging and Auditing
+## 5. Logging and Auditing
 
 ### ❯ **Use Systemd Journal**
 
@@ -239,7 +208,7 @@ Example rule in `/etc/audit/rules.d/audit.rules`:
 
 ---
 
-## 7. File System Hardening
+## 6. File System Hardening
 
 ### ❯ **Configure Secure Mount Options**
 
@@ -260,7 +229,7 @@ sudo chmod -R o-rwx /home/*
 
 ---
 
-## 8. Updates and Patch Management
+## 7. Updates and Patch Management
 
 ### ❯ **Configure Unattended Upgrades**
 
@@ -278,7 +247,7 @@ Unattended-Upgrade::Automatic-Reboot "true";
 
 ---
 
-## 9. Security Tools
+## 8. Security Tools
 
 Install security tools to enhance monitoring and protection:
 
@@ -296,7 +265,7 @@ sudo apt install chkrootkit rkhunter clamav lynis nmap
 
 ---
 
-## 10. Final Notes
+## 9. Final Notes
 
 * **Regularly Review Logs:** Use `journalctl` or check `/var/log/` for any unusual activity.
 * **Disable USB (Optional):** If not needed, disable USB storage:
@@ -319,6 +288,4 @@ sudo lynis audit system
 * Regularly check for updates to both Ubuntu and any security tools installed.
 
 ---
-
-Let me know if you need any of the sections expanded, additional configurations, or if you'd like to automate this process with a script. I can also provide a downloadable version of this guide!
 
