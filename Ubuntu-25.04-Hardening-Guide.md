@@ -66,7 +66,7 @@ Changing the hostname makes your Pi-hole server easier to identify on the networ
 1. Edit the hostname file:
 
 ```bash
-sudo nano /etc/hostname
+sudo vim /etc/hostname
 ```
 
 Replace the existing name (e.g., `ubuntu`) with your preferred name, such as:
@@ -78,7 +78,7 @@ pihole-server
 2. Update `/etc/hosts` to match:
 
 ```bash
-sudo nano /etc/hosts
+sudo vim /etc/hosts
 ```
 
 Change the line that looks like this:
