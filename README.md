@@ -57,51 +57,6 @@ sudo systemctl restart ssh
 
 ---
 
-### ❯ **Enforce Strong Passwords**
-
-Install the `pam-pwquality` package:
-
-```bash
-sudo apt install libpam-pwquality
-```
-
-Edit `/etc/pam.d/common-password`:
-
-```plaintext
-password requisite pam_pwquality.so retry=3 minlen=14 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1
-```
-
----
-
-### ❯ **Enable Two-Factor Authentication (Optional)**
-
-Install the required package for Google Authenticator:
-
-```bash
-sudo apt install libpam-google-authenticator
-google-authenticator
-```
-
-Update `/etc/pam.d/sshd`:
-
-```plaintext
-auth required pam_google_authenticator.so
-```
-
-Update `/etc/ssh/sshd_config`:
-
-```plaintext
-ChallengeResponseAuthentication yes
-```
-
-Then:
-
-```bash
-sudo systemctl restart ssh
-```
-
----
-
 ## 2. System Preparation
 
 ### ❯ **Update the System**
