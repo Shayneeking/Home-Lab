@@ -35,7 +35,13 @@ Now you can proceed with the rest of the hardening process from this non-root, s
 
 ### ❯ **Disable Root SSH Login**
 
-Edit `/etc/ssh/sshd_config`:
+Edit the sshd config file
+
+```bash
+sudo vim /etc/ssh/sshd_config
+```
+
+Add the following
 
 ```plaintext
 PermitRootLogin no
