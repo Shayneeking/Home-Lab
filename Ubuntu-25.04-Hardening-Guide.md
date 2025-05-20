@@ -127,7 +127,7 @@ sudo timedatectl set-ntp true
 
 Pi-hole must run on a **static IP** to ensure other devices can always reach it for DNS.
 
-<summary><strong>Option A: Set static IP via Netplan</strong> (default on Ubuntu 25.04)</summary>
+### ❯ **Set static IP via Netplan**
 
 1. Identify your network interface:
 
@@ -136,8 +136,6 @@ ip link
 ```
 
 Assume your interface is `etho`. Edit the config:
-
-> 💡 Replace `192.168.1.10` with your desired static IP, and `192.168.1.1` with your router’s gateway IP.
 
 ```bash
 sudo vim /etc/netplan/50-cloud-init.yaml
