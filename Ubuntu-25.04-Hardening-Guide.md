@@ -4,6 +4,7 @@
 
 1. [User and Authentication Hardening](#1-user-and-authentication-hardening)
 2. [System Preparation](#2-system-preparation)
+3. [Set a Static IP for the Host](#3-set-a-static-ip-for-the-host)
 
 ---
 
