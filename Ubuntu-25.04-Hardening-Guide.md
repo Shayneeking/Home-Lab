@@ -72,7 +72,7 @@ sudo vim /etc/hostname
 Replace the existing name (e.g., `ubuntu`) with your preferred name, such as:
 
 ```
-pihole-server
+pi1
 ```
 
 2. Update `/etc/hosts` to match:
@@ -81,22 +81,16 @@ pihole-server
 sudo vim /etc/hosts
 ```
 
-Change the line that looks like this:
+Delete everything in the file and add
 
 ```
-127.0.1.1    ubuntu
-```
-
-To:
-
-```
-127.0.1.1    pihole-server
+127.0.1.1    pi1
 ```
 
 3. Apply the new hostname:
 
 ```bash
-sudo hostnamectl set-hostname pihole-server
+sudo hostnamectl set-hostname pi1
 ```
 
 4. Reboot for changes to fully take effect:
