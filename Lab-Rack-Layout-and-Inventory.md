@@ -40,5 +40,3 @@
 | **12U**        | *(Empty)*          |                             |
 
 ---
-
-Let me know if you want a printable label sheet or diagram version!
