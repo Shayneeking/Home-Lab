@@ -50,10 +50,10 @@ cd /var/opt/pihole
 Create the file:
 
 ```bash
-sudo nano /var/opt/pihole/docker-compose.yml
+sudo vim /var/opt/pihole/docker-compose.yml
 ```
 
-Paste the following (customize values as needed):
+Press `i` to enter **Insert mode**, then paste the following (customize values as needed):
 
 ```yaml
 version: "3"
@@ -63,8 +63,8 @@ services:
     container_name: pihole
     image: pihole/pihole:latest
     environment:
-      TZ: 'Europe/London'            # Change to your timezone
-      WEBPASSWORD: 'secure_password' # Change to a strong password
+      TZ: 'America/New_York'            # Change to your timezone
+      WEBPASSWORD: 'secure_password'    # Change to a strong password
     volumes:
       - '/var/opt/pihole/etc-pihole:/etc/pihole'
       - '/var/opt/pihole/etc-dnsmasq.d:/etc/dnsmasq.d'
@@ -80,9 +80,16 @@ services:
       - NET_ADMIN
 ```
 
-Save and exit (`Ctrl+O`, `Enter`, `Ctrl+X`).
+Once done, press `Esc`, then type:
+
+```bash
+:wq
+```
+
+…and hit `Enter` to save and exit.
 
 ---
+
 
 ## 4. 🔐 Set File Permissions
 
