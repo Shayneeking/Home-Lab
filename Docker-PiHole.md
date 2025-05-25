@@ -2,24 +2,24 @@
 
 # 🛡️ **Install Pi-hole in Docker on Ubuntu 25.04**
 
-This guide helps you set up **Pi-hole** (network-wide ad blocker) using **Docker** on **Ubuntu 25.04**.
+This guide helps you set up **Pi-hole** (network-wide ad blocker) using **Docker** on **Ubuntu 25.04**, storing all files in `/var/opt/pihole`.
 
 ---
 
 ## ✅ Table of Contents
 
-2. [Install Docker and Docker Compose](#2-install-docker-and-docker-compose)
-3. [Create Pi-hole Docker Setup Directory](#3-create-pi-hole-docker-setup-directory)
-4. [Create `docker-compose.yml` for Pi-hole](#4-create-docker-composeyml-for-pi-hole)
-5. [Set File Permissions](#5-set-file-permissions)
-6. [Launch Pi-hole](#6-launch-pi-hole)
-7. [Access the Pi-hole Web Interface](#7-access-the-pi-hole-web-interface)
-8. [Set Pi-hole as Your Network DNS](#8-set-pi-hole-as-your-network-dns)
-9. [Common Docker Commands](#9-common-docker-commands)
+1. [Install Docker and Docker Compose](#1-install-docker-and-docker-compose)
+2. [Create Pi-hole Docker Setup Directory](#2-create-pi-hole-docker-setup-directory)
+3. [Create `docker-compose.yml` for Pi-hole](#3-create-docker-composeyml-for-pi-hole)
+4. [Set File Permissions](#4-set-file-permissions)
+5. [Launch Pi-hole](#5-launch-pi-hole)
+6. [Access the Pi-hole Web Interface](#6-access-the-pi-hole-web-interface)
+7. [Set Pi-hole as Your Network DNS](#7-set-pi-hole-as-your-network-dns)
+8. [Common Docker Commands](#8-common-docker-commands)
 
 ---
 
-## 2. 🐳 Install Docker and Docker Compose
+## 1. 🐳 Install Docker and Docker Compose
 
 ```bash
 sudo apt update
@@ -36,21 +36,21 @@ newgrp docker
 
 ---
 
-## 3. 📁 Create Pi-hole Docker Setup Directory
+## 2. 📁 Create Pi-hole Docker Setup Directory
 
 ```bash
-mkdir -p ~/pihole
-cd ~/pihole
+sudo mkdir -p /var/opt/pihole
+cd /var/opt/pihole
 ```
 
 ---
 
-## 4. 📝 Create `docker-compose.yml` for Pi-hole
+## 3. 📝 Create `docker-compose.yml` for Pi-hole
 
 Create the file:
 
 ```bash
-nano docker-compose.yml
+sudo nano /var/opt/pihole/docker-compose.yml
 ```
 
 Paste the following (customize values as needed):
@@ -66,8 +66,8 @@ services:
       TZ: 'Europe/London'            # Change to your timezone
       WEBPASSWORD: 'secure_password' # Change to a strong password
     volumes:
-      - './etc-pihole/:/etc/pihole/'
-      - './etc-dnsmasq.d/:/etc/dnsmasq.d/'
+      - '/var/opt/pihole/etc-pihole:/etc/pihole'
+      - '/var/opt/pihole/etc-dnsmasq.d:/etc/dnsmasq.d'
     dns:
       - 127.0.0.1
       - 1.1.1.1
@@ -84,34 +84,35 @@ Save and exit (`Ctrl+O`, `Enter`, `Ctrl+X`).
 
 ---
 
-## 5. 🔐 Set File Permissions
+## 4. 🔐 Set File Permissions
 
-Create the volume directories and make sure they’re accessible:
+Create the volume directories:
 
 ```bash
-mkdir -p etc-pihole etc-dnsmasq.d
-chmod -R 755 .
+sudo mkdir -p /var/opt/pihole/etc-pihole /var/opt/pihole/etc-dnsmasq.d
+sudo chmod -R 755 /var/opt/pihole
 ```
 
 ---
 
-## 6. 🚀 Launch Pi-hole
+## 5. 🚀 Launch Pi-hole
 
-Start the container:
+Navigate to the setup directory and start the container:
 
 ```bash
-docker-compose up -d
+cd /var/opt/pihole
+sudo docker-compose up -d
 ```
 
 Check status:
 
 ```bash
-docker ps
+sudo docker ps
 ```
 
 ---
 
-## 7. 🌐 Access the Pi-hole Web Interface
+## 6. 🌐 Access the Pi-hole Web Interface
 
 Open in your browser:
 
@@ -123,7 +124,7 @@ Login using the password you set in the `docker-compose.yml` (`WEBPASSWORD`).
 
 ---
 
-## 8. 📡 Set Pi-hole as Your Network DNS
+## 7. 📡 Set Pi-hole as Your Network DNS
 
 * **Router-wide (recommended)**:
   Set your router’s primary DNS server to your Pi-hole static IP (e.g., `192.168.1.10`).
@@ -133,28 +134,14 @@ Login using the password you set in the `docker-compose.yml` (`WEBPASSWORD`).
 
 ---
 
-## 9. 🔄 Common Docker Commands
+## 8. 🔄 Common Docker Commands
 
-| Action             | Command                     |
-| ------------------ | --------------------------- |
-| Restart Pi-hole    | `docker restart pihole`     |
-| Stop Pi-hole       | `docker stop pihole`        |
-| View logs          | `docker logs -f pihole`     |
-| Update image       | `docker pull pihole/pihole` |
-| Recreate container | `docker-compose up -d`      |
-
----
-
-## ✅ You're Done!
-
-You now have **Pi-hole running in Docker** on a **Ubuntu host with a static IP**. Enjoy network-wide ad blocking.
+| Action             | Command                              |
+| ------------------ | ------------------------------------ |
+| Restart Pi-hole    | `sudo docker restart pihole`         |
+| Stop Pi-hole       | `sudo docker stop pihole`            |
+| View logs          | `sudo docker logs -f pihole`         |
+| Update image       | `sudo docker pull pihole/pihole`     |
+| Recreate container | `sudo docker-compose up -d` (in dir) |
 
 ---
-
-Let me know if you'd like:
-
-* Pi-hole + Unbound setup (for DNS privacy)
-* IPv6 or Docker network tweaks
-* Auto-renewing SSL via Nginx or Caddy
-
-I can customize it for your use case!
