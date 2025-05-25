@@ -1,21 +1,25 @@
+---
+
 # 🔐 **Ubuntu 25.04 Hardening Guide**
 
-### Table of Contents
+A minimal hardening checklist to secure a fresh Ubuntu 25.04 server install for homelab or production use.
 
-1. User and Authentication Hardening
-2. Disable Root SSH Login
-3. System Preparation
-4. Set a Static IP for the Host
+---
+
+### 📋 Table of Contents
+
+1. [User and Authentication Hardening](#1-user-and-authentication-hardening)
+2. [Disable Root SSH Login](#2-disable-root-ssh-login)
+3. [System Preparation](#3-system-preparation)
+4. [Set a Static IP for the Host](#4-set-a-static-ip-for-the-host)
 
 ---
 
 ## 1. User and Authentication Hardening
 
-If you **did not create a non-root user during installation**, start here by creating an administrative account.
+If you **did not create a non-root user during installation**, begin by creating a secure administrative user.
 
-### ❯ Create an Admin User (Example: `sysadmin`)
-
-Use a strong username that isn’t easy to guess. Here's how to create a user called `sysadmin` and give them `sudo` privileges:
+### ❯ 1.1 Create an Admin User (Example: `sysadmin`)
 
 ```bash
 adduser sysadmin
@@ -24,8 +28,8 @@ usermod -aG sudo sysadmin
 
 **Explanation:**
 
-* `adduser sysadmin` — Creates the user and prompts for a password and basic user info.
-* `usermod -aG sudo sysadmin` — Grants the user admin rights.
+* `adduser sysadmin` — Creates the user and prompts for a password and user info.
+* `usermod -aG sudo sysadmin` — Adds the user to the `sudo` group.
 
 Then switch to the new user:
 
@@ -33,19 +37,19 @@ Then switch to the new user:
 su - sysadmin
 ```
 
-Continue the rest of the hardening process as this non-root, sudo-enabled user.
+All further steps should be completed as this non-root user.
 
 ---
 
-### ✅ Step 2: Check if OpenSSH Server is Installed
+### ❯ 1.2 Check if OpenSSH Server is Installed
 
-Run:
+Ensure SSH is installed for remote access:
 
 ```bash
 dpkg -l | grep openssh-server
 ```
 
-If nothing comes up, install it:
+If not installed, run:
 
 ```bash
 sudo apt update
@@ -56,23 +60,21 @@ sudo apt install openssh-server
 
 ## 2. Disable Root SSH Login
 
-Disabling SSH access for the `root` user reduces attack surface.
+Restricting root SSH access reduces risk from brute-force attacks.
 
-### ❯ Update `sshd_config`
-
-Edit the SSH configuration file:
+### ❯ 2.1 Edit `sshd_config`
 
 ```bash
 sudo vim /etc/ssh/sshd_config
 ```
 
-Add or modify the following line:
+Set the following directive:
 
 ```
 PermitRootLogin no
 ```
 
-Then restart the SSH service to apply changes:
+Apply changes:
 
 ```bash
 sudo systemctl restart ssh
@@ -82,29 +84,35 @@ sudo systemctl restart ssh
 
 ## 3. System Preparation
 
-### ❯ 🖥️ Change the Hostname
+If you **did not configure the hostname during the installer**, set it manually now.
 
-To change the hostname:
+### ❯ 3.1 Change the Hostname
+
+Edit the hostname file:
 
 ```bash
 sudo vim /etc/hostname
 ```
 
-Replace existing content with your desired hostname (e.g. `pi1`).
+Replace the current value (e.g., `ubuntu`) with your preferred name:
 
-Then update the hosts file:
+```
+pi1
+```
+
+Then edit `/etc/hosts`:
 
 ```bash
 sudo vim /etc/hosts
 ```
 
-Example content:
+Set:
 
 ```
 127.0.1.1    pi1
 ```
 
-Apply the new hostname:
+Apply and reboot:
 
 ```bash
 sudo hostnamectl set-hostname pi1
@@ -113,9 +121,9 @@ sudo reboot
 
 ---
 
-### ❯ Update the System
+### ❯ 3.2 Update the System
 
-Ensure your system is fully up to date:
+Bring all packages up to date and enable automatic updates:
 
 ```bash
 sudo apt update && sudo apt upgrade -y
@@ -124,9 +132,9 @@ sudo apt install unattended-upgrades
 
 ---
 
-### ❯ Configure Time Synchronization
+### ❯ 3.3 Enable Time Synchronization
 
-Enable NTP time sync:
+Ensure system clock accuracy:
 
 ```bash
 sudo timedatectl set-ntp true
@@ -136,17 +144,17 @@ sudo timedatectl set-ntp true
 
 ## 4. 📌 Set a Static IP for the Host
 
-A static IP ensures your Pi-hole (or other services) are reliably reachable.
+Pi-hole and other services require a reliable, unchanging IP address.
 
-### ❯ Set Static IP via Netplan
+### ❯ 4.1 Configure via Netplan
 
-1. Identify your network interface:
+1. Identify the primary interface:
 
 ```bash
 ip link
 ```
 
-Assume the interface is `eth0`. Edit the config:
+Assuming `eth0`, edit the Netplan config:
 
 ```bash
 sudo vim /etc/netplan/50-cloud-init.yaml
@@ -172,15 +180,10 @@ network:
           via: 192.168.1.1
 ```
 
-Apply the config:
+Apply the changes:
 
 ```bash
 sudo netplan apply
 ```
 
 ---
-
-
-
-
-
