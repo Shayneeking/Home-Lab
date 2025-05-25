@@ -1,5 +1,3 @@
-Got it! Since setting a **static IP** is essential for a reliable Pi-hole setup (especially if it's providing DNS to a network), we'll move that to **Step 1** and make it a **required step**. Here's the updated and reorganized guide:
-
 ---
 
 # 🛡️ **Install Pi-hole in Docker on Ubuntu 25.04**
