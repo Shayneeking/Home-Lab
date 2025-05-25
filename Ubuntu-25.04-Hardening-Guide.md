@@ -37,6 +37,23 @@ Continue the rest of the hardening process as this non-root, sudo-enabled user.
 
 ---
 
+### ✅ Step 2: Check if OpenSSH Server is Installed
+
+Run:
+
+```bash
+dpkg -l | grep openssh-server
+```
+
+If nothing comes up, install it:
+
+```bash
+sudo apt update
+sudo apt install openssh-server
+```
+
+---
+
 ## 2. Disable Root SSH Login
 
 Disabling SSH access for the `root` user reduces attack surface.
@@ -163,4 +180,7 @@ sudo netplan apply
 
 ---
 
-Let me know if you want this saved back into your `Ubuntu-25.04-Hardening-Guide.md` file!
+
+
+
+
