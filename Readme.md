@@ -27,11 +27,11 @@ This project is maintained for personal reference and shared for community benef
 
 ## 🧠 Author
 
-**Shayne King**  
+**Shayne King**
+*Senior Network Management Systems Engineer*
+University of Virginia
 
-Senior Network Management Systems Engineer
+📬 *Have feedback or suggestions?*
+Feel free to [open an issue](#) or submit a pull request!
 
-University Of Virginia
-
-📬 Feel free to open an issue or PR if you have feedback or improvements!
-
+---
