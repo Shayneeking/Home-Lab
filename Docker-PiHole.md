@@ -166,25 +166,3 @@ http://<your-static-ip>/admin
 Login using the password you just set in step 7.
 
 ---
-
-## 9. 📡 Set Pi-hole as Your Network DNS
-
-* **Router-wide (recommended)**:
-  Set your router’s DNS to Pi-hole’s static IP (e.g., `192.168.1.10`).
-
-* **Per device**:
-  Manually set your device DNS to point to the Pi-hole IP.
-
----
-
-## 10. 🔄 Common Docker Commands
-
-| Action             | Command                              |
-| ------------------ | ------------------------------------ |
-| Restart Pi-hole    | `sudo docker restart pihole`         |
-| Stop Pi-hole       | `sudo docker stop pihole`            |
-| View logs          | `sudo docker logs -f pihole`         |
-| Update image       | `sudo docker pull pihole/pihole`     |
-| Recreate container | `sudo docker-compose up -d` (in dir) |
-
----
