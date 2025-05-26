@@ -146,7 +146,8 @@ sudo docker ps
 Set the password for the web interface:
 
 ```bash
-sudo docker exec -it pihole pihole -a setpassword
+sudo docker exec -it pihole bash
+pihole setpassword
 ```
 
 You’ll be prompted to enter and confirm a new password.
