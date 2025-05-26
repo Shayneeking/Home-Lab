@@ -14,9 +14,10 @@ This guide helps you set up **Pi-hole** (network-wide ad blocker) using **Docker
 4. [Create `docker-compose.yml` for Pi-hole](#4-create-docker-composeyml-for-pi-hole)
 5. [Set File Permissions](#5-set-file-permissions)
 6. [Launch Pi-hole](#6-launch-pi-hole)
-7. [Access the Pi-hole Web Interface](#7-access-the-pi-hole-web-interface)
-8. [Set Pi-hole as Your Network DNS](#8-set-pi-hole-as-your-network-dns)
-9. [Common Docker Commands](#9-common-docker-commands)
+7. [Set Pi-hole Admin Password](#7-set-pi-hole-admin-password)
+8. [Access the Pi-hole Web Interface](#8-access-the-pi-hole-web-interface)
+9. [Set Pi-hole as Your Network DNS](#9-set-pi-hole-as-your-network-dns)
+10. [Common Docker Commands](#10-common-docker-commands)
 
 ---
 
@@ -93,7 +94,6 @@ services:
     image: pihole/pihole:latest
     environment:
       TZ: 'America/New_York'            # Change to your timezone
-      WEBPASSWORD: 'secure_password'    # Change to a strong password
     volumes:
       - '/var/opt/pihole/etc-pihole:/etc/pihole'
       - '/var/opt/pihole/etc-dnsmasq.d:/etc/dnsmasq.d'
@@ -141,7 +141,20 @@ sudo docker ps
 
 ---
 
-## 7. 🌐 Access the Pi-hole Web Interface
+## 7. 🔑 Set Pi-hole Admin Password
+
+Set the password for the web interface:
+
+```bash
+sudo docker exec -it pihole pihole -a setpassword
+```
+
+You’ll be prompted to enter and confirm a new password.
+To clear the password and disable login, just press `Enter` twice.
+
+---
+
+## 8. 🌐 Access the Pi-hole Web Interface
 
 Open your browser and navigate to:
 
@@ -149,11 +162,11 @@ Open your browser and navigate to:
 http://<your-static-ip>/admin
 ```
 
-Login using the password set in your `docker-compose.yml` (`WEBPASSWORD`).
+Login using the password you just set in step 7.
 
 ---
 
-## 8. 📡 Set Pi-hole as Your Network DNS
+## 9. 📡 Set Pi-hole as Your Network DNS
 
 * **Router-wide (recommended)**:
   Set your router’s DNS to Pi-hole’s static IP (e.g., `192.168.1.10`).
@@ -163,7 +176,7 @@ Login using the password set in your `docker-compose.yml` (`WEBPASSWORD`).
 
 ---
 
-## 9. 🔄 Common Docker Commands
+## 10. 🔄 Common Docker Commands
 
 | Action             | Command                              |
 | ------------------ | ------------------------------------ |
