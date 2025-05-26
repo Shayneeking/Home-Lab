@@ -2,24 +2,53 @@
 
 # 🛡️ **Install Pi-hole in Docker on Ubuntu 25.04**
 
-This guide helps you set up **Pi-hole** (network-wide ad blocker) using **Docker** on **Ubuntu 25.04**, storing all files in `/var/opt/pihole`.
+This guide helps you set up **Pi-hole** (network-wide ad blocker) using **Docker** on **Ubuntu 25.04**, with persistent data stored in `/var/opt/pihole`.
 
 ---
 
 ## ✅ Table of Contents
 
-1. [Install Docker and Docker Compose](#1-install-docker-and-docker-compose)
-2. [Create Pi-hole Docker Setup Directory](#2-create-pi-hole-docker-setup-directory)
-3. [Create `docker-compose.yml` for Pi-hole](#3-create-docker-composeyml-for-pi-hole)
-4. [Set File Permissions](#4-set-file-permissions)
-5. [Launch Pi-hole](#5-launch-pi-hole)
-6. [Access the Pi-hole Web Interface](#6-access-the-pi-hole-web-interface)
-7. [Set Pi-hole as Your Network DNS](#7-set-pi-hole-as-your-network-dns)
-8. [Common Docker Commands](#8-common-docker-commands)
+1. [Disable systemd-resolved (Free Port 53)](#1-disable-systemd-resolved-free-port-53)
+2. [Install Docker and Docker Compose](#2-install-docker-and-docker-compose)
+3. [Create Pi-hole Docker Setup Directory](#3-create-pi-hole-docker-setup-directory)
+4. [Create `docker-compose.yml` for Pi-hole](#4-create-docker-composeyml-for-pi-hole)
+5. [Set File Permissions](#5-set-file-permissions)
+6. [Launch Pi-hole](#6-launch-pi-hole)
+7. [Access the Pi-hole Web Interface](#7-access-the-pi-hole-web-interface)
+8. [Set Pi-hole as Your Network DNS](#8-set-pi-hole-as-your-network-dns)
+9. [Common Docker Commands](#9-common-docker-commands)
 
 ---
 
-## 1. 🐳 Install Docker and Docker Compose
+## 1. ❌ Disable systemd-resolved (Free Port 53)
+
+Pi-hole needs to bind to port `53`, but `systemd-resolved` often occupies it on Ubuntu.
+
+Check what's using port 53:
+
+```bash
+sudo lsof -i :53
+```
+
+If `systemd-resolved` is listed, disable and stop it:
+
+```bash
+sudo systemctl disable systemd-resolved
+sudo systemctl stop systemd-resolved
+```
+
+Replace the existing `/etc/resolv.conf`:
+
+```bash
+sudo rm /etc/resolv.conf
+echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf
+```
+
+---
+
+## 2. 🐳 Install Docker and Docker Compose
+
+Install Docker packages and start the service:
 
 ```bash
 sudo apt update
@@ -27,7 +56,7 @@ sudo apt install docker.io docker-compose -y
 sudo systemctl enable --now docker
 ```
 
-(Optional) Allow your user to run Docker:
+(Optional) Add your user to the Docker group:
 
 ```bash
 sudo usermod -aG docker $USER
@@ -36,7 +65,7 @@ newgrp docker
 
 ---
 
-## 2. 📁 Create Pi-hole Docker Setup Directory
+## 3. 📁 Create Pi-hole Docker Setup Directory
 
 ```bash
 sudo mkdir -p /var/opt/pihole
@@ -45,15 +74,15 @@ cd /var/opt/pihole
 
 ---
 
-## 3. 📝 Create `docker-compose.yml` for Pi-hole
+## 4. 📝 Create `docker-compose.yml` for Pi-hole
 
-Create the file:
+Edit the Docker Compose file using `vim`:
 
 ```bash
 sudo vim /var/opt/pihole/docker-compose.yml
 ```
 
-Press `i` to enter **Insert mode**, then paste the following (customize values as needed):
+Press `i` to enter Insert mode and paste the following:
 
 ```yaml
 version: "3"
@@ -80,20 +109,13 @@ services:
       - NET_ADMIN
 ```
 
-Once done, press `Esc`, then type:
-
-```bash
-:wq
-```
-
-…and hit `Enter` to save and exit.
+Then press `Esc`, type `:wq`, and press `Enter` to save and exit.
 
 ---
 
+## 5. 🔐 Set File Permissions
 
-## 4. 🔐 Set File Permissions
-
-Create the volume directories:
+Create the necessary volume directories:
 
 ```bash
 sudo mkdir -p /var/opt/pihole/etc-pihole /var/opt/pihole/etc-dnsmasq.d
@@ -102,16 +124,16 @@ sudo chmod -R 755 /var/opt/pihole
 
 ---
 
-## 5. 🚀 Launch Pi-hole
+## 6. 🚀 Launch Pi-hole
 
-Navigate to the setup directory and start the container:
+Start the Pi-hole container:
 
 ```bash
 cd /var/opt/pihole
 sudo docker-compose up -d
 ```
 
-Check status:
+Verify it’s running:
 
 ```bash
 sudo docker ps
@@ -119,29 +141,29 @@ sudo docker ps
 
 ---
 
-## 6. 🌐 Access the Pi-hole Web Interface
+## 7. 🌐 Access the Pi-hole Web Interface
 
-Open in your browser:
+Open your browser and navigate to:
 
 ```
 http://<your-static-ip>/admin
 ```
 
-Login using the password you set in the `docker-compose.yml` (`WEBPASSWORD`).
+Login using the password set in your `docker-compose.yml` (`WEBPASSWORD`).
 
 ---
 
-## 7. 📡 Set Pi-hole as Your Network DNS
+## 8. 📡 Set Pi-hole as Your Network DNS
 
 * **Router-wide (recommended)**:
-  Set your router’s primary DNS server to your Pi-hole static IP (e.g., `192.168.1.10`).
+  Set your router’s DNS to Pi-hole’s static IP (e.g., `192.168.1.10`).
 
 * **Per device**:
-  Manually configure DNS settings on individual devices to use your Pi-hole IP.
+  Manually set your device DNS to point to the Pi-hole IP.
 
 ---
 
-## 8. 🔄 Common Docker Commands
+## 9. 🔄 Common Docker Commands
 
 | Action             | Command                              |
 | ------------------ | ------------------------------------ |
