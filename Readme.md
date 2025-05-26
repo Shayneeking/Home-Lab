@@ -28,5 +28,6 @@ This project is maintained for personal reference and shared for community benef
 ## 🧠 Author
 
 **Shayne King**  
-System/Network Engineer @ UVA  
+Senior Network Management Systems Engineer
+University Of Virginia
 📬 Feel free to open an issue or PR if you have feedback or improvements!
