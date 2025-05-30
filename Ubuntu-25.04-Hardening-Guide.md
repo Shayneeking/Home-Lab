@@ -41,9 +41,16 @@ All further steps should be completed as this non-root user.
 
 ---
 
-### ❯ 1.2 Check if OpenSSH Server is Installed
+### ❯ 1.2 Install `vim` and Check if OpenSSH Server is Installed
 
-Ensure SSH is installed for remote access:
+Before editing configuration files, ensure `vim` is installed:
+
+```bash
+sudo apt update
+sudo apt install vim
+```
+
+Then check for SSH:
 
 ```bash
 dpkg -l | grep openssh-server
@@ -52,7 +59,6 @@ dpkg -l | grep openssh-server
 If not installed, run:
 
 ```bash
-sudo apt update
 sudo apt install openssh-server
 ```
 
